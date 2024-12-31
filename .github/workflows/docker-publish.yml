@@ -2,6 +2,12 @@ name: Deploy
 on:
   push:
     branches: [ main ]
+
+# Neue Permissions-Sektion hinzufügen
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
