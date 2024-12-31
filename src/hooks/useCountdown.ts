@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { calculateTimeToNewYear } from '../utils/timeCalculation'
 
 const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true'
-const DEV_COUNTDOWN_TIME = Number(import.meta.env.VITE_DEV_COUNTDOWN_TIME) || 15
+const DEV_COUNTDOWN_TIME = Number(import.meta.env.VITE_DEV_COUNTDOWN_TIME) || 2
 
 export function useCountdown() {
   const [seconds, setSeconds] = useState(DEV_MODE ? DEV_COUNTDOWN_TIME : calculateTimeToNewYear())

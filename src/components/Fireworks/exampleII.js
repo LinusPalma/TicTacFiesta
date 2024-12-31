@@ -1,41 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import styles from './styles.module.css'
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface FireworksProps {
-  onReset: () => void
-}
+const Firework = () => {
+  const [rockets, setRockets] = useState([]);
+  const [explosions, setExplosions] = useState([]);
 
-interface Rocket {
-  id: number
-  startX: number
-  startY: number
-  targetX: number
-  targetY: number
-  color: string
-}
-
-interface Explosion {
-  id: number
-  x: number
-  y: number
-  sparks: Array<{
-    id: number
-    angle: number
-    distance: number
-    duration: number
-    size: number
-  }>
-  color: string
-}
-
-const Fireworks = ({ onReset }: FireworksProps) => {
-  const [rockets, setRockets] = useState<Rocket[]>([])
-  const [explosions, setExplosions] = useState<Explosion[]>([])
-
+  // Erstellt eine neue Rakete mit definierten Start- und Zielpositionen
   const createRocket = () => {
-    const screenWidth = window.innerWidth
-    const screenHeight = window.innerHeight
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
+    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1000;
     
     return {
       id: Date.now(),
@@ -43,24 +16,33 @@ const Fireworks = ({ onReset }: FireworksProps) => {
       startY: screenHeight,
       targetX: Math.random() * screenWidth,
       targetY: screenHeight * 0.3,
+      // Wir generieren eine helle, leuchtende Farbe für die Funken
       color: `hsl(${Math.random() * 360}, 100%, 70%)`
-    }
-  }
+    };
+  };
 
-  const createExplosion = (rocket: Rocket) => {
-    const sparkCount = 24
-    const sparks = Array.from({ length: sparkCount }, (_, i) => {
-      const baseAngle = (i * 360) / sparkCount
-      const angle = baseAngle + (Math.random() - 0.5) * 10
+  // Erstellt eine Explosion mit Funken, die einen Trail hinterlassen
+  const createExplosion = (rocket) => {
+    const sparkCount = 24;
+    const sparks = [];
+    
+    for (let i = 0; i < sparkCount; i++) {
+      // Basiswinkel für gleichmäßige Verteilung
+      const baseAngle = (i * 360) / sparkCount;
+      // Füge kleine Zufallsvariation zum Winkel hinzu
+      const angle = baseAngle + (Math.random() - 0.5) * 10;
       
-      return {
+      sparks.push({
         id: i,
-        angle,
+        angle: angle,
+        // Zufällige Distanz für natürlicheres Aussehen
         distance: 100 + Math.random() * 50,
+        // Längere Duration für sichtbareren Trail
         duration: 2 + Math.random() * 0.5,
+        // Zufällige Größe für Variation
         size: 1 + Math.random() * 2
-      }
-    })
+      });
+    }
 
     return {
       id: Date.now(),
@@ -68,55 +50,64 @@ const Fireworks = ({ onReset }: FireworksProps) => {
       y: rocket.targetY,
       sparks,
       color: rocket.color
-    }
-  }
+    };
+  };
 
+  // Starte regelmäßig neue Raketen
   useEffect(() => {
     const interval = setInterval(() => {
-      setRockets(prev => [...prev, createRocket()])
-    }, 2000)
+      setRockets(prev => [...prev, createRocket()]);
+    }, 2000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className={styles.fireworks}>
+    <div className="fixed inset-0 bg-black overflow-hidden">
       <AnimatePresence>
+        {/* Raketen mit Leuchteffekt */}
         {rockets.map(rocket => (
           <motion.div
             key={rocket.id}
-            className={styles.rocket}
+            className="absolute"
             style={{
-              backgroundColor: rocket.color,
-              boxShadow: `0 0 6px ${rocket.color}`,
-              filter: 'blur(0.5px)',
               width: '4px',
               height: '4px',
+              backgroundColor: rocket.color,
+              // Füge Leuchteffekt für die Rakete hinzu
+              boxShadow: `0 0 6px ${rocket.color}`,
+              filter: 'blur(0.5px)',
               borderRadius: '50%'
             }}
             initial={{ x: rocket.startX, y: rocket.startY }}
             animate={{ x: rocket.targetX, y: rocket.targetY }}
             transition={{ duration: 1, ease: "easeOut" }}
             onAnimationComplete={() => {
-              setRockets(prev => prev.filter(r => r.id !== rocket.id))
-              setExplosions(prev => [...prev, createExplosion(rocket)])
+              setRockets(prev => prev.filter(r => r.id !== rocket.id));
+              setExplosions(prev => [...prev, createExplosion(rocket)]);
             }}
           />
         ))}
 
+        {/* Explosionen mit Trail-Effekt */}
         {explosions.map(explosion => (
           <React.Fragment key={explosion.id}>
             {explosion.sparks.map(spark => (
               <motion.div
                 key={`${explosion.id}-${spark.id}`}
-                className={styles.spark}
+                className="absolute origin-center"
                 style={{
+                  // Erstelle ein längliches Partikel für den Trail-Effekt
                   width: `${spark.size * 3}px`,
                   height: `${spark.size}px`,
                   backgroundColor: explosion.color,
+                  // Verstärke den Leuchteffekt
                   boxShadow: `0 0 ${spark.size * 2}px ${explosion.color}`,
+                  // Füge Bewegungsunschärfe hinzu
                   filter: 'blur(0.5px)',
+                  // Runde die Enden ab
                   borderRadius: `${spark.size}px`,
+                  // Transformationsursprung am hinteren Ende
                   transformOrigin: 'left center'
                 }}
                 initial={{ 
@@ -124,6 +115,7 @@ const Fireworks = ({ onReset }: FireworksProps) => {
                   y: explosion.y,
                   opacity: 1,
                   scale: 1,
+                  // Initialer Rotationswinkel
                   rotate: spark.angle
                 }}
                 animate={{
@@ -131,11 +123,13 @@ const Fireworks = ({ onReset }: FireworksProps) => {
                   y: explosion.y + Math.sin(spark.angle * Math.PI / 180) * spark.distance,
                   opacity: 0,
                   scale: 0.1,
+                  // Behalte den Rotationswinkel bei
                   rotate: spark.angle
                 }}
                 transition={{ 
                   duration: spark.duration,
                   ease: "easeOut",
+                  // Füge unterschiedliche Timing-Funktionen für verschiedene Eigenschaften hinzu
                   opacity: {
                     duration: spark.duration * 0.8,
                     ease: "easeIn"
@@ -143,7 +137,9 @@ const Fireworks = ({ onReset }: FireworksProps) => {
                 }}
                 onAnimationComplete={() => {
                   if (spark.id === explosion.sparks.length - 1) {
-                    setExplosions(prev => prev.filter(e => e.id !== explosion.id))
+                    setExplosions(prev => 
+                      prev.filter(e => e.id !== explosion.id)
+                    );
                   }
                 }}
               />
@@ -151,13 +147,8 @@ const Fireworks = ({ onReset }: FireworksProps) => {
           </React.Fragment>
         ))}
       </AnimatePresence>
-      {import.meta.env.VITE_DEV_MODE === 'true' && (
-        <button onClick={onReset} className={styles.resetButton}>
-          Neustart
-        </button>
-      )}
     </div>
-  )
-}
+  );
+};
 
-export default Fireworks
+export default Firework;

@@ -54,9 +54,67 @@
 }
 
 .fireworks {
-  font-size: 3rem;
-  text-align: center;
-  animation: scale 0.5s ease-in-out;
+  position: fixed;
+  inset: 0;
+  background: black;
+  overflow: hidden;
+}
+
+.rocket {
+  position: absolute;
+  width: 6px;  /* Größere Raketen */
+  height: 12px;  /* Längliche Form */
+  border-radius: 50%;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.spark {
+  position: absolute;
+  width: 5px;  /* Größere Funken */
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;  /* Für hellere Überlagerungen */
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: explode 1s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(0);
+    opacity: 0;
+  }
+}
+
+.sparkle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: gold;
+  border-radius: 50%;
+  animation: sparkle 0.8s ease-out forwards;
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes scale {
