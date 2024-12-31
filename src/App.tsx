@@ -5,13 +5,13 @@ import Fireworks from './components/Fireworks'
 import './App.css'
 
 function App() {
-  const { seconds, isFinished } = useCountdown()
+  const { seconds, isFinished, reset } = useCountdown()
   const isFinalCountdown = seconds <= 10 && !isFinished
 
   return (
     <div className="app">
       {isFinished ? (
-        <Fireworks />
+        <Fireworks onReset={reset} />
       ) : isFinalCountdown ? (
         <FinalCountdown seconds={seconds} />
       ) : (
